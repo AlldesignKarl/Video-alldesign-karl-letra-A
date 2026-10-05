@@ -13,7 +13,7 @@ m *= 10 ** ((-24.5 - meter.integrated_loudness(m)) / 20)
 env = uniform_filter1d(np.abs(v), int(0.05 * SR))
 act = uniform_filter1d((env > 0.01).astype(float), int(0.35 * SR)); act = np.clip(act * 1.6, 0, 1)
 t = np.arange(N) / SR
-extra = np.clip((t - 15.6) / 0.8, 0, 1) * 2.5
+extra = np.clip((t - 13.9) / 0.8, 0, 1) * np.clip((17.4 - t) / 1.0, 0, 1) * 2.5
 duck = 10 ** ((-5.0 * act - extra) / 20)
 m *= duck[:, None]
 fin = np.clip(t / 0.6, 0, 1) ** 1.5

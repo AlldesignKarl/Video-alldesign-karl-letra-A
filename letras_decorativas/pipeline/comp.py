@@ -38,7 +38,7 @@ PAN = [(0.0, 120.0), (20.0, -125.0)]                 # lateral orbit drift of th
 Z_AXIS = 1.25                                        # camera-to-product distance in the set (m)
 
 TXT = dict(title=(0.45, 2.55), artesanales=(4.55, 6.85), detalle=(7.15, 9.35),
-           stores=(12.35, 21.0), store1=12.7, store2=16.2)
+           stores=(12.35, 21.0), brand=12.85, url=14.45)
 ELS = overlay.build_elements(TXT)
 
 

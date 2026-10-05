@@ -6,13 +6,16 @@ from kokoro_onnx import Kokoro
 T = '../tts/'
 k = Kokoro(T + 'kokoro.onnx', T + 'voices.npz')
 lines = json.load(open('lines.json'))
-speeds = [1.0, 1.0, 1.0, 0.97, 0.97]
+speeds = [1.0, 1.0, 0.97, 0.92]
 SR = 48000; DUR = 20.0
 start = 0.32
-gaps = [0.32, 0.36, 0.26, 0.20]
+gaps = [0.32, 1.15, 0.55]
 out = np.zeros(int(SR * DUR)); t = start; times = []
 for i, l in enumerate(lines):
-    a, sr = k.create(l, voice='ef_dora', speed=speeds[i], lang='es')
+    if isinstance(l, dict):   # brand name: explicit phonemes (Spanish reading of an English name)
+        a, sr = k.create(l['ph'], voice='ef_dora', speed=speeds[i], is_phonemes=True)
+    else:
+        a, sr = k.create(l, voice='ef_dora', speed=speeds[i], lang='es')
     e = np.where(np.abs(a) > 0.006)[0]; a = a[max(0, e[0] - 1200):e[-1] + 1600]
     a = resample_poly(a, SR, sr)
     n = len(a); fade = int(0.012 * SR); a[:fade] *= np.linspace(0, 1, fade); a[-fade * 4:] *= np.linspace(1, 0, fade * 4)

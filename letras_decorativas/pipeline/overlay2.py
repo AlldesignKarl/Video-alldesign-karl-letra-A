@@ -79,8 +79,8 @@ def build_elements(T):
     big_i = font(F_SERIF_I, 104, 500)
     mid_i = font(F_SERIF_I, 70, 500)
     caps = font(F_SANS, 30, 500)
-    store = font(F_SERIF, 72, 600)
-    addr = font(F_SANS, 34, 400)
+    brand = font(F_SERIF, 96, 600)
+    url = font(F_SANS, 44, 500)
 
     a, b = T['title']
     add_rule(150, 265, a, b)
@@ -95,12 +95,11 @@ def build_elements(T):
     a, b = T['stores']
     add('DISPONIBLES EN:', caps, INK2, 262, a, b, tracking=0.32)
     add_rule(120, 300, a + 0.25, b)
-    s1 = T['store1']
-    add('Mercería El Siglo', store, INK, 392, s1, b)
-    add('C. Cortes de Aragón, 46', addr, INK2, 446, s1 + 0.25, b, tracking=0.05)
-    s2 = T['store2']
-    add('Papelería Casablanca', store, INK, 560, s2, b)
-    add('C. La Vía, 16', addr, INK2, 614, s2 + 0.25, b, tracking=0.05)
+    s1 = T['brand']
+    add('alldesignKarl', brand, INK, 410, s1, b, fade_in=1.0)
+    add('TIENDA ONLINE', caps, INK2, 470, s1 + 0.3, b, tracking=0.32)
+    s2 = T['url']
+    add('alldesignkarl.com', url, INK, 566, s2, b, tracking=0.03)
     return els
 
 
