@@ -1,3 +1,12 @@
+# Spots verticales · Alldesign Karl
+
+| Spot | Archivo | Detalles |
+|---|---|---|
+| **Letras decorativas** (20,0 s) | [`Letras_Decorativas_1080x1920.mp4`](Letras_Decorativas_1080x1920.mp4) | [`letras_decorativas/README.md`](letras_decorativas/README.md) |
+| Ambientadores del Cachirulo (20,5 s) | [`Ambientadores_del_Cachirulo_1080x1920.mp4`](Ambientadores_del_Cachirulo_1080x1920.mp4) | abajo |
+
+---
+
 # Ambientadores del Cachirulo · Spot vertical
 
 Anuncio vertical de **20,5 s** (1080×1920, 30 fps, H.264 + AAC) para los Ambientadores del Cachirulo,
