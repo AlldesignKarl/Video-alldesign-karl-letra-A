@@ -2,7 +2,8 @@
 
 | Spot | Archivo | Detalles |
 |---|---|---|
-| **Letras decorativas** (20,0 s) | [`Letras_Decorativas_1080x1920.mp4`](Letras_Decorativas_1080x1920.mp4) | [`letras_decorativas/README.md`](letras_decorativas/README.md) |
+| **Letras decorativas · giro 360°** (20,0 s) | [`Letras_Decorativas_1080x1920.mp4`](Letras_Decorativas_1080x1920.mp4) | [`letras_decorativas/README.md`](letras_decorativas/README.md) |
+| Letras decorativas · solo fotos (20,0 s) | [`Letras_Decorativas_fotos_1080x1920.mp4`](Letras_Decorativas_fotos_1080x1920.mp4) | ídem |
 | Ambientadores del Cachirulo (20,5 s) | [`Ambientadores_del_Cachirulo_1080x1920.mp4`](Ambientadores_del_Cachirulo_1080x1920.mp4) | abajo |
 
 ---
