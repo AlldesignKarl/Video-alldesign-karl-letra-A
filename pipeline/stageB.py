@@ -16,13 +16,14 @@ SPR_ANCHOR = (K * (AX + 0.5) - 0.5, K * (AY + 0.5) - 0.5)
 BASE0 = np.array([540.0, 1354.3])          # plinth-top centre at zoom 1 (final px)
 PP = np.array([540.0, 960.0])              # principal point
 Z_BASE = 1.14
-DOLLY = 0.075                              # metres of push-in over the spot
+DOLLY = 0.09                              # metres of push-in over the spot
 DUR = 20.5
 NFR = int(round(DUR * FPS))
 ELL = dict(rx=360.4, ry_back=131.4, ry_front=160.3)
 
-tm = json.load(open('timemap.json'))       # per output frame: float source index (1-based)
-SCREEN_SCALE = float(json.load(open('xforms_meta.json'))['screen_scale'])
+tm = json.load(open(os.environ.get('TIMEMAP', 'timemap.json')))
+SD = os.environ.get('SPR_DIR', 'sprites'); LD = os.environ.get('LR_DIR', 'lr'); OD = os.environ.get('OUT_DIR', 'out')       # per output frame: float source index (1-based)
+SCREEN_SCALE = float(os.environ.get('SCREEN_SCALE', json.load(open('xforms_meta.json'))['screen_scale']))
 
 T = dict(title=(0.40, 3.05), craft=(3.35, 7.40), spray=5.0, excl=(7.75, 17.25), store1=10.55, store2=14.15,
          end=(17.65, 21.0), wait=18.45)
@@ -79,9 +80,9 @@ def load_sprite(i):
     if i not in _spr_cache:
         if len(_spr_cache) > 6:
             _spr_cache.pop(next(iter(_spr_cache)))
-        s = cv2.imread(f'sprites/{i:04d}.png', cv2.IMREAD_UNCHANGED).astype(np.float32) / 65535.0
+        s = cv2.imread(f'{SD}/{i:04d}.png', cv2.IMREAD_UNCHANGED).astype(np.float32) / 65535.0
         s = s[..., [2, 1, 0, 3]]
-        lr = np.load(f'lr/{i:04d}.npy').astype(np.float32)
+        lr = np.load(f'{LD}/{i:04d}.npy').astype(np.float32)
         _spr_cache[i] = (s, lr)
     return _spr_cache[i]
 
@@ -103,7 +104,7 @@ def lr_for_flow(lr):
 
 
 def sprite_at(sidx):
-    nmax = len(os.listdir('sprites'))
+    nmax = 10 ** 6
     i = int(math.floor(sidx)); fr = sidx - i
     i = max(1, min(i, nmax))
     if fr < 0.02 or i >= nmax:
@@ -163,6 +164,12 @@ def grade_product(spr):
     edge = cv2.GaussianBlur(edge, (0, 0), 2.0) * a
     lum = (lin * np.array([0.2126, 0.7152, 0.0722], np.float32)).sum(-1, keepdims=True)
     lin = lin + edge[..., None] * np.array([0.07, 0.06, 0.045], np.float32) * np.clip(1 - lum, 0, 1)
+    # fine detail pass inside the silhouette (no halos at the edges)
+    inner = cv2.erode((a > 0.95).astype(np.uint8), np.ones((5, 5), np.uint8)).astype(np.float32)
+    inner = cv2.GaussianBlur(inner, (0, 0), 2.0)[..., None]
+    lin = lin + 0.45 * inner * (lin - cv2.GaussianBlur(lin, (0, 0), 1.1))
+    lin = lin + 0.18 * inner * (lin - cv2.GaussianBlur(lin, (0, 0), 6.0))
+    lin = np.clip(lin, 0, None)
     # soft highlight shoulder so whites keep their texture
     kn = 0.72
     lin = np.where(lin > kn, kn + (1 - np.exp(-(lin - kn) / 0.3)) * 0.3, lin)
@@ -203,9 +210,9 @@ def shadow_mult(a_screen, base, scale):
         ell = np.zeros((H, W), np.float32)
         cv2.ellipse(ell, (int((fx0 + fx1) / 2), int(by - 10 * scale)), (int(fw * 0.56), int(18 * scale + 0.10 * fw)), 0, 0, 360, 1.0, -1)
         ell = cv2.GaussianBlur(ell, (0, 0), 13 * scale)
-        sh *= 1 - 0.36 * ell * inside
+        sh *= 1 - 0.30 * ell * inside
     sh *= 1 - 0.65 * np.clip(c0 * 1.5, 0, 1)
-    sh *= 1 - 0.70 * np.clip(c1 * 1.3, 0, 1)
+    sh *= 1 - 0.55 * np.clip(c1 * 1.3, 0, 1)
     sh *= 1 - 0.36 * np.clip(c2, 0, 1) * inside
     sh *= 1 - 0.32 * np.clip(c3, 0, 1) * inside
     return sh
@@ -241,7 +248,7 @@ def finish(rgb_lin, t, k):
     gr = rng.normal(0, 1, (H // 2, W // 2)).astype(np.float32)
     gr = cv2.resize(gr, (W, H), interpolation=cv2.INTER_LINEAR)
     lum = s.mean(-1, keepdims=True)
-    s = s + gr[..., None] * (0.010 * (1 - np.abs(lum - 0.5) * 1.2))
+    s = s + gr[..., None] * (0.0045 * (1 - np.abs(lum - 0.5) * 1.2))
     # fades from / to black
     f = min(1.0, t / 0.55) * min(1.0, max(0.0, (DUR - t) / 0.85))
     f = f * f * (3 - 2 * f)
@@ -250,9 +257,9 @@ def finish(rgb_lin, t, k):
 
 
 def main(lo, hi):
-    os.makedirs('out', exist_ok=True)
+    os.makedirs(OD, exist_ok=True)
     for k in range(lo, hi):
-        fn = f'out/{k:04d}.png'
+        fn = f'{OD}/{k:04d}.png'
         if os.path.exists(fn):
             continue
         t0 = time.time()
